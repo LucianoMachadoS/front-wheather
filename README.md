@@ -1,54 +1,44 @@
-# React + TypeScript + Vite
+# 🌦️ Previsão Climática — Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Versão **web** do projeto Previsão Climática: pesquise uma cidade, veja o tempo atual e salve suas cidades favoritas com um clique na estrela.
 
-Currently, two official plugins are available:
+| Parte | Repositório |
+|---|---|
+| API | [api-wheather](https://github.com/LucianoMachadoS/api-wheather) |
+| Web (este) | [front-wheather](https://github.com/LucianoMachadoS/front-wheather) |
+| Mobile (React Native) | [previsao-climatica-mobile-front](https://github.com/LucianoMachadoS/previsao-climatica-mobile-front) |
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white)
 
-## Expanding the ESLint configuration
+## ✨ Funcionalidades
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Busca do tempo atual por nome da cidade
+- Cartões com temperatura, condição, ícone do tempo e horário da última atualização (formatado com **date-fns**)
+- **Cidades favoritas**: estrela para adicionar ou remover, lista em ordem alfabética
+- Estados de carregamento e de lista vazia
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## 🧱 Estrutura
+
+```
+src/
+├── components/   # Header e WeatherCard
+├── pages/        # WeatherPage
+├── models/       # tipos TypeScript da resposta do tempo e das favoritas
+└── lib/axios.ts  # cliente da API
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Como rodar
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Suba primeiro a [API](https://github.com/LucianoMachadoS/api-wheather).
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+git clone https://github.com/LucianoMachadoS/front-wheather.git
+cd front-wheather
+npm install
+npm run dev
 ```
+
+---
+Feito por [Luciano Machado](https://github.com/LucianoMachadoS) · [LinkedIn](https://www.linkedin.com/in/luciano-machado-9253a1265/)
