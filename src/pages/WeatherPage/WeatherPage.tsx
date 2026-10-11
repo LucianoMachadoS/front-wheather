@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import axios from "axios"
 import Header from "../../components/Header/Header"
 import "./WeatherPage.css"
 import type { Weather } from "../../models/WeatherModel"
@@ -11,57 +12,60 @@ export default function WeatherPage() {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [cityToSearch, setCityToSearch] = useState<string>("");
     const [cityWeatherData, setCityWeatherData] = useState<Weather>();
+    const [errorMessage, setErrorMessage] = useState<string>("");
 
     useEffect(() => {
         getFavoriteCities()
     }, [])
 
     async function getFavoriteCities() {
-        //TODO: LIMPAR DADOS ANTERIORES DE CIDADES FAVORITAS
         setfavoriteCitiesData([]);
-
-        //TODO: MARCAR COMO CARREGANDO DADOS
+        setErrorMessage("")
         setIsLoading(true)
 
-        //TODO: BUSCAR CIDADES FAVORITAS
-        const response = await api.get("/favoritecity")
-        //TODO: PARA CADA ITEM DO RESPONSE BUSCAR O CLIMA DA CIDADE PELO NOME
-        // E ASSIM SALVAR NO ESTADO DE CIDADES FAVORITAS
-        response.data.forEach(async (item: FavoriteCity) => {
-            const responseWeather = await getWeatherByCity(item.name);
+        try {
+            const response = await api.get<FavoriteCity[]>("/favoritecity")
 
-            if (responseWeather) {
-                setfavoriteCitiesData((prevState) => [...prevState, responseWeather])
-            }
-        })
+            // Busca o clima de todas as favoritas e só termina o carregamento quando todas chegarem
+            const results = await Promise.allSettled(
+                response.data.map((item) => getWeatherByCity(item.name))
+            )
 
-        favoriteCitiesData.sort((a, b) => a.location.name.localeCompare(b.location.name));
+            const weathers = results
+                .filter((result) => result.status === "fulfilled")
+                .map((result) => (result as PromiseFulfilledResult<Weather>).value)
+                .sort((a, b) => a.location.name.localeCompare(b.location.name))
 
-        console.log(favoriteCitiesData)
-
-        //TODO: DESMARCAR COMO CARREGANDO DADOS
-        setIsLoading(false)
-    }
-
-    async function getWeatherByCity(cityName: string) {
-        //TODO: FAZER A REQUISIÇÃO PARA A API BUSCANDO O CLIMA PELO
-        //NOME DA CIDADE E RETORNAR O RESULTADO
-        const response = await api.get<Weather>("/weather/" + cityName)
-
-        if (response.status === 200) {
-            return response.data;
-        } else {
-            console.error("Erro ao carregar clima da cidade")
+            setfavoriteCitiesData(weathers)
+        } catch (error) {
+            console.error(error)
+            setErrorMessage("Não foi possível conectar à API. Tente novamente em alguns segundos.")
+        } finally {
+            setIsLoading(false)
         }
     }
 
-    async function onSubmitSearch(e: any) {
+    async function getWeatherByCity(cityName: string) {
+        const response = await api.get<Weather>("/weather/" + encodeURIComponent(cityName))
+
+        return response.data;
+    }
+
+    async function onSubmitSearch(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
+        setErrorMessage("")
 
-        const responseWeather = await getWeatherByCity(cityToSearch);
-
-        if (responseWeather) {
+        try {
+            const responseWeather = await getWeatherByCity(cityToSearch);
             setCityWeatherData(responseWeather);
+        } catch (error) {
+            console.error(error)
+            setCityWeatherData(undefined)
+            setErrorMessage(
+                axios.isAxiosError(error) && error.response?.status === 404
+                    ? "Cidade não encontrada."
+                    : "Não foi possível buscar o clima. Tente novamente."
+            )
         }
 
         setCityToSearch("");
@@ -82,7 +86,9 @@ export default function WeatherPage() {
                 <button className="buttonSearch" type="submit">Buscar</button>
             </form>
 
-            {cityWeatherData && <WeatherCard weather={cityWeatherData} refreshCard={refreshCardSearch} />}
+            {errorMessage && <p className="errorMessage">{errorMessage}</p>}
+
+            {cityWeatherData &&<WeatherCard weather={cityWeatherData} refreshCard={refreshCardSearch} />}
 
             <h2 className="favoriteCitiesTitle">Cidades Favoritas</h2>
 
