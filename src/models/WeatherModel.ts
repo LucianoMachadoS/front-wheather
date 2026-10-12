@@ -13,6 +13,7 @@ export interface Weather {
         condition: {
             text: string;
             icon: string;
+            code: number;
         };
     };
     forecast: {

@@ -4,6 +4,7 @@ import { FaStar, FaRegStar } from "react-icons/fa";
 import "./WheatherCard.css";
 import type { Weather } from "../../models/WeatherModel";
 import { api } from "../../lib/axios";
+import { getLargeIcon, getWeatherTheme } from "../../lib/weatherTheme";
 
 interface WeatherCardProps {
     weather: Weather;
@@ -31,10 +32,18 @@ export default function WeatherCard({weather, refreshCard}: WeatherCardProps){
         // TODO: CHAMAR RESFRESHCARD COM O NOME DA CIDADE
         refreshCard(weather.location.name)
     }
+    const theme = getWeatherTheme(weather.current.condition.code, weather.current.is_day)
+
     return (
-        <div className="card">
+        <div
+            className="card"
+            style={{
+                background: `linear-gradient(135deg, ${theme.colors[0]}, ${theme.colors[1]})`,
+                color: theme.textColor,
+            }}
+        >
             <div className="favorite-icon" onClick={toggleFavorite}>
-                {isFavorited ? <FaStar color="gold" /> : <FaRegStar />}
+                {isFavorited ? <FaStar color="gold" /> : <FaRegStar color={theme.textColor} />}
             </div>
             <div className="cardContent">
                 <h2>Clima em {weather.location.name}</h2>
@@ -44,7 +53,7 @@ export default function WeatherCard({weather, refreshCard}: WeatherCardProps){
                 <p>Ultima Atualização: {format(weather.current.last_updated, "dd-MM-yyyy HH:mm")} </p>
             </div>
 
-            <img src={weather.current.condition.icon} />
+            <img className="weatherIcon" src={getLargeIcon(weather.current.condition.icon)} alt={weather.current.condition.text} />
         </div>
     )
 
